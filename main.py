@@ -75,3 +75,80 @@ def default_nerdian_deploy(stake_token: str) -> NerdianDeployShape:
         treasury=NERDIAN_DEFAULT_TREASURY,
         math_oracle=NERDIAN_DEFAULT_ORACLE,
         guardian=NERDIAN_DEFAULT_GUARDIAN,
+        owner=NERDIAN_DEFAULT_OWNER,
+        min_operator_stake=DEFAULT_MIN_STAKE_WEI,
+        unstake_delay_seconds=DEFAULT_UNSTAKE_DELAY,
+        global_complexity_cap=DEFAULT_COMPLEXITY_CAP,
+        protocol_fee_bps=DEFAULT_FEE_BPS,
+        epoch_cooldown_seconds=DEFAULT_EPOCH_COOLDOWN,
+    )
+
+
+def _keccak256(data: bytes) -> bytes:
+    try:
+        from eth_hash.auto import keccak as _eth_keccak  # type: ignore
+
+        return _eth_keccak(data)
+    except Exception:
+        h = hashlib.blake2b(data, digest_size=32, person=b"HumaCalcXXI")
+        return h.digest()
+
+
+def domain_salt_digest(label: bytes) -> bytes:
+    return _keccak256(b"Nerdian.tensorSheaf.v7" + label)
+
+
+class Hc21ComplexityError(RuntimeError):
+    pass
+
+
+class Hc21StencilError(RuntimeError):
+    pass
+
+
+class Hc21ChannelFault(RuntimeError):
+    pass
+
+
+def clamp_int(x: int, lo: int, hi: int) -> int:
+    return max(lo, min(hi, x))
+
+
+def saturating_add(a: int, b: int) -> int:
+    s = a + b
+    if s < a:
+        return 2**256 - 1
+    return s
+
+
+def fold_complexity(weights: list[int], exponents: list[int]) -> int:
+    if len(weights) != len(exponents):
+        raise Hc21StencilError("stride mismatch")
+    if len(weights) > 41:
+        raise Hc21StencilError("batch cap")
+    acc = 0
+    for w, e in zip(weights, exponents):
+        if e > 7:
+            raise Hc21ComplexityError("exponent guard")
+        term = w
+        for _ in range(1, e):
+            term *= w
+        acc = saturating_add(acc, term)
+    return acc
+
+
+def hilbert_slot(dim_bits: int, x: int, y: int) -> int:
+    if dim_bits == 0 or dim_bits > 32:
+        raise Hc21ComplexityError("hilbert dim")
+    max_c = (1 << dim_bits) - 1
+    if x > max_c or y > max_c:
+        raise Hc21ComplexityError("cursor")
+    slot = 0
+    s = dim_bits
+    while s > 0:
+        s -= 1
+        rx = (x >> s) & 1
+        ry = (y >> s) & 1
+        slot <<= 2
+        slot |= (rx * 3) ^ ry
+        if ry == 0:
