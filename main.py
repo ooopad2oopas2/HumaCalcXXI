@@ -306,3 +306,80 @@ def longest_increasing_subseq(seq: list[int]) -> int:
 def levenshtein_bound(a: bytes, b: bytes, max_dist: int) -> int:
     if len(a) > 32 or len(b) > 32:
         raise Hc21StencilError("lev cap")
+    la, lb = len(a), len(b)
+    row = list(range(lb + 1))
+    for i in range(1, la + 1):
+        prev = row[0]
+        row[0] = i
+        for j in range(1, lb + 1):
+            tmp = row[j]
+            cost = 0 if a[i - 1] == b[j - 1] else 1
+            row[j] = min(row[j] + 1, row[j - 1] + 1, prev + cost)
+            prev = tmp
+        if row[lb] > max_dist:
+            return max_dist + 1
+    return row[lb]
+
+
+def horner(coeffs: list[int], x: int) -> int:
+    if not coeffs:
+        raise Hc21StencilError("coeffs")
+    y = coeffs[0]
+    for c in coeffs[1:]:
+        y = y * x + c
+    return y
+
+
+def kahan_sum(terms: list[float]) -> float:
+    s = 0.0
+    c = 0.0
+    for x in terms:
+        y = x - c
+        t = s + y
+        c = (t - s) - y
+        s = t
+    return s
+
+
+def softmax(logits: list[float], temp: float = 1.0) -> list[float]:
+    if temp == 0:
+        raise Hc21ComplexityError("temperature")
+    m = max(logits)
+    exps = [math.exp((z - m) / temp) for z in logits]
+    s = sum(exps)
+    return [e / s for e in exps]
+
+
+def parse_rational(s: str) -> tuple[int, int]:
+    s = s.strip()
+    if "/" in s:
+        a, b = s.split("/", 1)
+        return int(a), int(b)
+    return int(s), 1
+
+
+def _safe_eval_ast(node: ast.AST, env: dict[str, t.Any]) -> t.Any:
+    if isinstance(node, ast.Constant):
+        if isinstance(node.value, (int, float, complex)):
+            return node.value
+        raise Hc21ChannelFault("disallowed literal")
+    if isinstance(node, ast.UnaryOp):
+        v = _safe_eval_ast(node.operand, env)
+        if isinstance(node.op, ast.UAdd):
+            return +v
+        if isinstance(node.op, ast.USub):
+            return -v
+        raise Hc21ChannelFault("bad unary")
+    if isinstance(node, ast.BinOp):
+        left = _safe_eval_ast(node.left, env)
+        right = _safe_eval_ast(node.right, env)
+        if isinstance(node.op, ast.Add):
+            return left + right
+        if isinstance(node.op, ast.Sub):
+            return left - right
+        if isinstance(node.op, ast.Mult):
+            return left * right
+        if isinstance(node.op, ast.Div):
+            return left / right
+        if isinstance(node.op, ast.Pow):
+            return left**right
