@@ -152,3 +152,80 @@ def hilbert_slot(dim_bits: int, x: int, y: int) -> int:
         slot <<= 2
         slot |= (rx * 3) ^ ry
         if ry == 0:
+            if rx == 1:
+                x = max_c - x
+                y = max_c - y
+            x, y = y, x
+    return slot
+
+
+def chebyshev_t(n: int, x: int) -> int:
+    if n == 0:
+        return 1
+    if n == 1:
+        return x
+    t0, t1 = 1, x
+    for _ in range(2, n + 1):
+        t0, t1 = t1, 2 * t1 * x - t0
+    return t1
+
+
+def lucas_mod(index: int, mod: int) -> int:
+    if mod < 3:
+        raise Hc21ComplexityError("modulus")
+    if index == 0:
+        return 2 % mod
+    if index == 1:
+        return 1 % mod
+    a, b = 2 % mod, 1 % mod
+    for _ in range(2, index + 1):
+        a, b = b, (a + b) % mod
+    return b
+
+
+def popcount256(x: int) -> int:
+    c = 0
+    while x:
+        x &= x - 1
+        c += 1
+    return c
+
+
+def gray_code(x: int) -> int:
+    return x ^ (x >> 1)
+
+
+def inverse_gray(g: int) -> int:
+    x = g
+    g >>= 1
+    while g:
+        x ^= g
+        g >>= 1
+    return x
+
+
+def collatz_steps(seed: int, max_steps: int) -> tuple[int, int]:
+    n = seed
+    steps = 0
+    while n != 1 and steps < max_steps:
+        if n % 2 == 0:
+            n //= 2
+        else:
+            n = 3 * n + 1
+        steps += 1
+    return steps, n
+
+
+def triangular_root_floor(s: int) -> int:
+    lo, hi = 0, 2**128
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        t = mid * (mid + 1) // 2
+        if t <= s:
+            lo = mid
+        else:
+            hi = mid - 1
+    return lo
+
+
+def cantor_pair(a: int, b: int) -> int:
