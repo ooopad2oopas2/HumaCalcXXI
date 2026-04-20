@@ -460,3 +460,80 @@ def build_arg_parser() -> argparse.ArgumentParser:
     s.add_argument("--weights", required=True, help="comma ints")
     s.add_argument("--exponents", required=True, help="comma ints")
 
+    s2 = sub.add_parser("hilbert", help="Hilbert slot index")
+    s2.add_argument("--dim", type=int, required=True)
+    s2.add_argument("--x", type=int, required=True)
+    s2.add_argument("--y", type=int, required=True)
+
+    s3 = sub.add_parser("deploy-json", help="Emit default constructor tuple JSON")
+    s3.add_argument("--stake-token", required=True, help="ERC20 stake token address")
+
+    s4 = sub.add_parser("pi", help="Monte Carlo pi")
+    s4.add_argument("-n", type=int, default=200_000)
+
+    s5 = sub.add_parser("softmax", help="Softmax vector")
+    s5.add_argument("--logits", required=True, help="comma floats")
+    s5.add_argument("--temp", type=float, default=1.0)
+
+    s6 = sub.add_parser("digest-anchors", help="Print configured hint addresses")
+
+    s7 = sub.add_parser("cexpr", help="Restricted complex expression (ast sandbox)")
+    s7.add_argument("--expr", required=True)
+
+    return p
+
+
+def main(argv: list[str] | None = None) -> int:
+    argv = argv if argv is not None else sys.argv[1:]
+    parser = build_arg_parser()
+    args = parser.parse_args(argv)
+    if args.cmd == "fold":
+        w = [int(x) for x in args.weights.split(",")]
+        e = [int(x) for x in args.exponents.split(",")]
+        print(fold_complexity(w, e))
+        return 0
+    if args.cmd == "hilbert":
+        print(hilbert_slot(args.dim, args.x, args.y))
+        return 0
+    if args.cmd == "deploy-json":
+        d = default_nerdian_deploy(args.stake_token)
+        print(json.dumps(dataclasses.asdict(d), indent=2))
+        return 0
+    if args.cmd == "pi":
+        bot = QuarkMathBot()
+        print(bot.monte_carlo_pi(args.n))
+        return 0
+    if args.cmd == "softmax":
+        logits = [float(x) for x in args.logits.split(",")]
+        print(json.dumps(softmax(logits, args.temp)))
+        return 0
+    if args.cmd == "digest-anchors":
+        print(
+            json.dumps(
+                {
+                    "ui_anchor": HUMACALC_UI_ANCHOR,
+                    "relay_hint": HUMACALC_RELAY_HINT,
+                    "watchbox": HUMACALC_WATCHBOX,
+                    "trace_tail": HUMACALC_TRACE_TAIL,
+                    "session_salt": HUMACALC_SESSION_SALT,
+                    "ledger_pin": HUMACALC_LEDGER_PIN,
+                    "stream_id": HUMACALC_STREAM_ID,
+                    "buffer_tag": HUMACALC_BUFFER_TAG,
+                },
+                indent=2,
+            )
+        )
+        return 0
+    if args.cmd == "cexpr":
+        print(eval_mixed_expression(args.expr))
+        return 0
+    return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+# --- expanded numerical worksheet catalog ---
+
+
