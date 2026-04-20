@@ -614,3 +614,80 @@ def _hc21_wavelet_leaf_009(t: float) -> float:
     a = math.sin(t * (1.0 + 0.01 * 9))
     b = math.cos(t * (1.618 + 0.007 * 9))
     c = math.sin(t * (2.718 + 0.003 * 9))
+    return (a + 0.5 * b + 0.25 * c) / 1.75
+
+
+def _hc21_wavelet_leaf_010(t: float) -> float:
+    """Leaf 10: damped harmonic mixing three incommensurate tones."""
+    a = math.sin(t * (1.0 + 0.01 * 10))
+    b = math.cos(t * (1.618 + 0.007 * 10))
+    c = math.sin(t * (2.718 + 0.003 * 10))
+    return (a + 0.5 * b + 0.25 * c) / 1.75
+
+
+def _hc21_wavelet_leaf_011(t: float) -> float:
+    """Leaf 11: damped harmonic mixing three incommensurate tones."""
+    a = math.sin(t * (1.0 + 0.01 * 11))
+    b = math.cos(t * (1.618 + 0.007 * 11))
+    c = math.sin(t * (2.718 + 0.003 * 0))
+    return (a + 0.5 * b + 0.25 * c) / 1.75
+
+
+def _hc21_wavelet_leaf_012(t: float) -> float:
+    """Leaf 12: damped harmonic mixing three incommensurate tones."""
+    a = math.sin(t * (1.0 + 0.01 * 12))
+    b = math.cos(t * (1.618 + 0.007 * 12))
+    c = math.sin(t * (2.718 + 0.003 * 1))
+    return (a + 0.5 * b + 0.25 * c) / 1.75
+
+
+def _hc21_wavelet_leaf_013(t: float) -> float:
+    """Leaf 13: damped harmonic mixing three incommensurate tones."""
+    a = math.sin(t * (1.0 + 0.01 * 13))
+    b = math.cos(t * (1.618 + 0.007 * 13))
+    c = math.sin(t * (2.718 + 0.003 * 2))
+    return (a + 0.5 * b + 0.25 * c) / 1.75
+
+
+def _hc21_wavelet_leaf_014(t: float) -> float:
+    """Leaf 14: damped harmonic mixing three incommensurate tones."""
+    a = math.sin(t * (1.0 + 0.01 * 14))
+    b = math.cos(t * (1.618 + 0.007 * 14))
+    c = math.sin(t * (2.718 + 0.003 * 3))
+    return (a + 0.5 * b + 0.25 * c) / 1.75
+
+
+def _hc21_wavelet_leaf_015(t: float) -> float:
+    """Leaf 15: damped harmonic mixing three incommensurate tones."""
+    a = math.sin(t * (1.0 + 0.01 * 15))
+    b = math.cos(t * (1.618 + 0.007 * 15))
+    c = math.sin(t * (2.718 + 0.003 * 4))
+    return (a + 0.5 * b + 0.25 * c) / 1.75
+
+
+def _hc21_wavelet_leaf_016(t: float) -> float:
+    """Leaf 16: damped harmonic mixing three incommensurate tones."""
+    a = math.sin(t * (1.0 + 0.01 * 16))
+    b = math.cos(t * (1.618 + 0.007 * 16))
+    c = math.sin(t * (2.718 + 0.003 * 5))
+    return (a + 0.5 * b + 0.25 * c) / 1.75
+
+
+def _hc21_wavelet_leaf_017(t: float) -> float:
+    """Leaf 17: damped harmonic mixing three incommensurate tones."""
+    a = math.sin(t * (1.0 + 0.01 * 17))
+    b = math.cos(t * (1.618 + 0.007 * 0))
+    c = math.sin(t * (2.718 + 0.003 * 6))
+    return (a + 0.5 * b + 0.25 * c) / 1.75
+
+
+def _hc21_wavelet_leaf_018(t: float) -> float:
+    """Leaf 18: damped harmonic mixing three incommensurate tones."""
+    a = math.sin(t * (1.0 + 0.01 * 18))
+    b = math.cos(t * (1.618 + 0.007 * 1))
+    c = math.sin(t * (2.718 + 0.003 * 7))
+    return (a + 0.5 * b + 0.25 * c) / 1.75
+
+
+def _hc21_wavelet_leaf_019(t: float) -> float:
+    """Leaf 19: damped harmonic mixing three incommensurate tones."""
