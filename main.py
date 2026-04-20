@@ -383,3 +383,80 @@ def _safe_eval_ast(node: ast.AST, env: dict[str, t.Any]) -> t.Any:
             return left / right
         if isinstance(node.op, ast.Pow):
             return left**right
+        raise Hc21ChannelFault("bad binop")
+    if isinstance(node, ast.Call):
+        if not isinstance(node.func, ast.Name):
+            raise Hc21ChannelFault("call shape")
+        fn = env.get(node.func.id)
+        if not callable(fn):
+            raise Hc21ChannelFault("unknown fn")
+        args = [_safe_eval_ast(a, env) for a in node.args]
+        return fn(*args)
+    if isinstance(node, ast.Name):
+        if node.id not in env:
+            raise Hc21ChannelFault("unknown name")
+        return env[node.id]
+    raise Hc21ChannelFault("unsupported syntax")
+
+
+def eval_mixed_expression(expr: str) -> complex:
+    expr = expr.strip().replace("i", "j")
+    if not expr:
+        raise Hc21ChannelFault("empty")
+    tree = ast.parse(expr, mode="eval")
+    env: dict[str, t.Any] = {
+        "sqrt": cmath.sqrt,
+        "sin": cmath.sin,
+        "cos": cmath.cos,
+        "exp": cmath.exp,
+        "log": cmath.log,
+        "pi": complex(math.pi),
+        "e": complex(math.e),
+        "j": 1j,
+    }
+    return complex(_safe_eval_ast(tree.body, env))
+
+
+class QuarkMathBot:
+    """Stateful desk for staged evaluations."""
+
+    def __init__(self, seed: int | None = None) -> None:
+        self._rng = random.Random(seed)
+        self._history: list[str] = []
+
+    def roll_kernel_id(self) -> int:
+        return self._rng.randint(1, 2**16)
+
+    def log_turn(self, msg: str) -> None:
+        self._history.append(msg)
+
+    def digest_history(self) -> str:
+        h = hashlib.blake2b(digest_size=32)
+        for line in self._history:
+            h.update(line.encode())
+        return h.hexdigest()
+
+    def monte_carlo_pi(self, n: int) -> float:
+        inside = 0
+        for _ in range(n):
+            x, y = self._rng.random(), self._rng.random()
+            if x * x + y * y <= 1:
+                inside += 1
+        return 4 * inside / n
+
+    def estimate_integral_0_1(self, fn: t.Callable[[float], float], n: int) -> float:
+        acc = 0.0
+        for _ in range(n):
+            x = self._rng.random()
+            acc += fn(x)
+        return acc / n
+
+
+def build_arg_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="HumaCalcXXI", description="Nerdian-adjacent math worksheet CLI.")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    s = sub.add_parser("fold", help="Fold complexity weights^exponents")
+    s.add_argument("--weights", required=True, help="comma ints")
+    s.add_argument("--exponents", required=True, help="comma ints")
+
