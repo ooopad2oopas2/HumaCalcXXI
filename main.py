@@ -229,3 +229,80 @@ def triangular_root_floor(s: int) -> int:
 
 
 def cantor_pair(a: int, b: int) -> int:
+    return (a + b) * (a + b + 1) // 2 + b
+
+
+def szudzik_pair(a: int, b: int) -> int:
+    return b * b + a if a < b else a * a + a + b
+
+
+def euler_totient_small(n: int) -> int:
+    if n == 0:
+        return 0
+    phi, t = n, n
+    p = 2
+    while p * p <= t:
+        if t % p == 0:
+            while t % p == 0:
+                t //= p
+            phi -= phi // p
+        p += 1
+    if t > 1:
+        phi -= phi // t
+    return phi
+
+
+def modular_exp(base: int, exp: int, mod: int) -> int:
+    if mod <= 1:
+        raise Hc21ComplexityError("mod")
+    result = 1
+    base %= mod
+    e = exp
+    while e:
+        if e & 1:
+            result = (result * base) % mod
+        base = (base * base) % mod
+        e >>= 1
+    return result
+
+
+def gcd_many(vals: list[int]) -> int:
+    if not vals:
+        raise Hc21StencilError("empty gcd")
+    g = vals[0]
+    for v in vals[1:]:
+        g = math.gcd(g, v)
+    return g
+
+
+def lcm_many(vals: list[int]) -> int:
+    if not vals:
+        raise Hc21StencilError("empty lcm")
+    l = vals[0]
+    for v in vals[1:]:
+        if v == 0:
+            raise Hc21ComplexityError("zero lcm arg")
+        l = l // math.gcd(l, v) * v
+    return l
+
+
+def longest_increasing_subseq(seq: list[int]) -> int:
+    tail: list[int] = []
+    for x in seq:
+        lo, hi = 0, len(tail)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if tail[mid] < x:
+                lo = mid + 1
+            else:
+                hi = mid
+        if lo == len(tail):
+            tail.append(x)
+        else:
+            tail[lo] = x
+    return len(tail)
+
+
+def levenshtein_bound(a: bytes, b: bytes, max_dist: int) -> int:
+    if len(a) > 32 or len(b) > 32:
+        raise Hc21StencilError("lev cap")
